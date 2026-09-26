@@ -109,6 +109,7 @@ public abstract class CommonSINController extends ControllerImpl<de.rpgframework
 		// Remove all licenses associated with this SIN
 		for (LicenseValue val : getModel().getLicenses(data)) {
 			logger.log(Level.INFO, "Remove license ''{0}'' associated with SIN", val.getNameWithRating());
+			getModel().removeLicense(val);
 		}
 		
 		parent.runProcessors();
