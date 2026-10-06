@@ -2279,6 +2279,13 @@ public class Shadowrun6Tools {
 				item.setAttribute(SR6ItemAttribute.DATA_PROCESSING, new ItemAttributeNumericalValue<SR6ItemAttribute>(SR6ItemAttribute.DATA_PROCESSING, model.getAttribute(ShadowrunAttribute.LOGIC).getModifiedValue()));
 				item.setAttribute(SR6ItemAttribute.FIREWALL, new ItemAttributeNumericalValue<SR6ItemAttribute>(SR6ItemAttribute.FIREWALL, model.getAttribute(ShadowrunAttribute.WILLPOWER).getModifiedValue()));
 			}
+			if ("machinist_console".equals(item.getKey())) {
+				item.setAttribute(SR6ItemAttribute.DEVICE_RATING, new ItemAttributeNumericalValue<SR6ItemAttribute>(SR6ItemAttribute.DEVICE_RATING, model.getAttribute(ShadowrunAttribute.RESONANCE).getModifiedValue()));
+				item.setAttribute(SR6ItemAttribute.DATA_PROCESSING, new ItemAttributeNumericalValue<SR6ItemAttribute>(SR6ItemAttribute.DATA_PROCESSING, model.getAttribute(ShadowrunAttribute.LOGIC).getModifiedValue()));
+				item.setAttribute(SR6ItemAttribute.FIREWALL, new ItemAttributeNumericalValue<SR6ItemAttribute>(SR6ItemAttribute.FIREWALL, model.getAttribute(ShadowrunAttribute.WILLPOWER).getModifiedValue()));
+				item.setAttribute(SR6ItemAttribute.CONCURRENT_PROGRAMS, new ItemAttributeNumericalValue<SR6ItemAttribute>(SR6ItemAttribute.CONCURRENT_PROGRAMS, model.getAttribute(ShadowrunAttribute.CHARISMA).getModifiedValue()));
+				item.setAttribute(SR6ItemAttribute.NOISE_REDUCTION, new ItemAttributeNumericalValue<SR6ItemAttribute>(SR6ItemAttribute.NOISE_REDUCTION, model.getAttribute(ShadowrunAttribute.WILLPOWER).getModifiedValue()));
+			}
 
 			if (ret==null 
 					|| !ret.hasAttribute(SR6ItemAttribute.DEVICE_RATING)  // No device rating assumes technomancer ability
