@@ -192,6 +192,29 @@ public class EquipmentCtrlTest {
 	}
 
 	//-------------------------------------------------------------------
+	/**
+	 * Pop-out concealment takes chassis mod slots, not hardpoint capacity
+	 * (Double Clutch p.145).
+	 */
+	@Test
+	public void testConcealmentOnlyInChassis() {
+		preMods.add(new ValueModification(ShadowrunReference.CREATION_POINTS, CreatePoints.NUYEN.name(), 100000));
+		charGen.runProcessors();
+		OperationResult<CarriedItem<ItemTemplate>> res = ctrl.select(Shadowrun6Core.getItem(ItemTemplate.class, "chrysler-nissan_jackrabbit"));
+		assertTrue(res.wasSuccessful());
+		CarriedItem<ItemTemplate> car = res.get();
+		assertNotNull(car.getSlot(ItemHook.VEHICLE_HARDPOINT));
+
+		ItemTemplate conceal = Shadowrun6Core.getItem(ItemTemplate.class, "hardpoint_concealment");
+		for (String variant : List.of("small", "standard", "large", "huge")) {
+			Possible poss = ctrl.canBeEmbedded(car, ItemHook.VEHICLE_HARDPOINT, conceal, variant);
+			assertFalse(variant+": "+poss, poss.get());
+			poss = ctrl.canBeEmbedded(car, ItemHook.VEHICLE_CHASSIS, conceal, variant);
+			assertTrue(variant+": "+poss, poss.get());
+		}
+	}
+
+	//-------------------------------------------------------------------
 	@Test
 	public void loadSoftware() {
 		ItemTemplate item = Shadowrun6Core.getItem(ItemTemplate.class, "maersk_spider");

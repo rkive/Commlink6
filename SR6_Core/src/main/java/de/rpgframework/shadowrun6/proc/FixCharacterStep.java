@@ -19,6 +19,7 @@ import de.rpgframework.shadowrun.LicenseValue;
 import de.rpgframework.shadowrun.SIN;
 import de.rpgframework.shadowrun.ShadowrunAttribute;
 import de.rpgframework.shadowrun6.Shadowrun6Character;
+import de.rpgframework.shadowrun6.items.ItemHook;
 import de.rpgframework.shadowrun6.items.ItemTemplate;
 import de.rpgframework.shadowrun6.modifications.ShadowrunReference;
 
@@ -55,8 +56,28 @@ public class FixCharacterStep implements ProcessingStep {
 		fixLicencesWithoutSIN();
 		fixMissingHeat();
 		fixMissingReputation();
-		
+		fixConcealmentInHardpoint();
+
 		return unprocessed;
+	}
+
+	//-------------------------------------------------------------------
+	/**
+	 * Pop-out concealment takes chassis mod slots, not hardpoint capacity
+	 * (Double Clutch p.145). Older data also offered the hardpoint slot, so
+	 * move concealment stored there to the chassis.
+	 */
+	private void fixConcealmentInHardpoint() {
+		for (CarriedItem<ItemTemplate> item : model.getCarriedItems()) {
+			for (CarriedItem<ItemTemplate> acc : item.getAccessories()) {
+				if (!"hardpoint_concealment".equals(acc.getKey()) || acc.getUsedSlot()!=ItemHook.VEHICLE_HARDPOINT)
+					continue;
+				if (item.getSlot(ItemHook.VEHICLE_HARDPOINT)!=null)
+					item.getSlot(ItemHook.VEHICLE_HARDPOINT).removeEmbeddedItem(acc);
+				acc.setUsedSlot(ItemHook.VEHICLE_CHASSIS);
+				logger.log(Level.INFO, "Moved {0} of {1} from hardpoint to chassis slots", acc.getKey(), item.getKey());
+			}
+		}
 	}
 
 	//-------------------------------------------------------------------

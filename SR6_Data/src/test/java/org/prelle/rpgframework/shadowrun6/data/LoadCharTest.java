@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.rpgframework.genericrpg.items.CarriedItem;
+import de.rpgframework.genericrpg.items.CarryMode;
 import de.rpgframework.shadowrun.BodyForm;
 import de.rpgframework.shadowrun6.Shadowrun6Character;
 import de.rpgframework.shadowrun6.Shadowrun6Core;
@@ -137,6 +138,42 @@ public class LoadCharTest {
         AvailableSlot slot = car.getSlot(ItemHook.VEHICLE_HARDPOINT);
         assertNotNull(slot);
         assertEquals(5.0f, slot.getCapacity(), 0f);
+	}
+
+	//-------------------------------------------------------------------
+	/**
+	 * Pop-out concealment takes chassis mod slots (Double Clutch p.145).
+	 * A character saved while the data still offered the hardpoint slot
+	 * has it there; loading moves it to the chassis.
+	 */
+	@Test
+	public void loadConcealmentStoredInHardpoint() throws IOException {
+		FileInputStream fis = new FileInputStream("src/test/resources/testdata/Takeda.xml");
+		Shadowrun6Character character = Shadowrun6Core.decode(fis.readAllBytes());
+		Shadowrun6Tools.resolveChar(character);
+
+		ItemTemplate temp = Shadowrun6Core.getItem(ItemTemplate.class, "chrysler-nissan_jackrabbit");
+		CarriedItem<ItemTemplate> car = new CarriedItem<ItemTemplate>(temp, null, CarryMode.CARRIED);
+		SR6GearTool.recalculate("", character, car);
+		ItemTemplate conceal = Shadowrun6Core.getItem(ItemTemplate.class, "hardpoint_concealment");
+		CarriedItem<ItemTemplate> popOut = new CarriedItem<ItemTemplate>(conceal, conceal.getVariant("standard"), CarryMode.EMBEDDED);
+		SR6GearTool.recalculate("", character, popOut);
+		car.addAccessory(popOut, ItemHook.VEHICLE_HARDPOINT);
+		character.addCarriedItem(car);
+
+		// Save and load, as the app does
+		character = Shadowrun6Core.decode(Shadowrun6Core.encode(character));
+		Shadowrun6Tools.resolveChar(character);
+		Shadowrun6Tools.runProcessors(character, Locale.getDefault());
+
+		car = character.getCarriedItem(car.getUuid());
+		assertNotNull(car);
+		SR6GearTool.recalculate("", character, car);
+		CarriedItem<ItemTemplate> loaded = car.getAccessory("hardpoint_concealment", "standard").get(0);
+		assertEquals(ItemHook.VEHICLE_CHASSIS, loaded.getUsedSlot());
+		assertTrue(car.getSlot(ItemHook.VEHICLE_CHASSIS).getAllEmbeddedItems().contains(loaded));
+		assertFalse(car.getSlot(ItemHook.VEHICLE_HARDPOINT).getAllEmbeddedItems().contains(loaded));
+		assertEquals(0f, car.getSlot(ItemHook.VEHICLE_HARDPOINT).getUsedCapacity(), 0f);
 	}
 
 }

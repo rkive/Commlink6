@@ -1256,31 +1256,26 @@
       	<choices>
       		<choice uuid="c2d17c87-1cfe-4355-9877-a20fe09c170d" type="ITEM_ATTRIBUTE" ref="RATING" max="4"/>
       	</choices>
-     		<usage mode="EMBEDDED" slot="VEHICLE_HARDPOINT" value="0"/> <!-- correct slot is 'chassis' but keeping 'hardpoint' to avoid confusion for long term users -->
      		<usage mode="EMBEDDED" slot="VEHICLE_CHASSIS" value="0"/>
       	<attrdef id="PRICE" value="$RATING*100"/>
       	<attrdef id="AVAILABILITY" value="2I"/>
    	</variant>
    	<variant id="small">
-     		<usage mode="EMBEDDED" slot="VEHICLE_HARDPOINT" value="0.5"/>
      		<usage mode="EMBEDDED" slot="VEHICLE_CHASSIS" value="0.5"/>
       	<attrdef id="PRICE" value="1500"/>
       	<attrdef id="AVAILABILITY" value="2I"/>
    	</variant>
    	<variant id="standard">
-     		<usage mode="EMBEDDED" slot="VEHICLE_HARDPOINT" value="1"/>
      		<usage mode="EMBEDDED" slot="VEHICLE_CHASSIS" value="1"/>
       	<attrdef id="PRICE" value="3000"/>
       	<attrdef id="AVAILABILITY" value="3I"/>
    	</variant>
    	<variant id="large">
-     		<usage mode="EMBEDDED" slot="VEHICLE_HARDPOINT" value="2"/>
      		<usage mode="EMBEDDED" slot="VEHICLE_CHASSIS" value="2"/>
       	<attrdef id="PRICE" value="4500"/>
       	<attrdef id="AVAILABILITY" value="3I"/>
    	</variant>
    	<variant id="huge">
-     		<usage mode="EMBEDDED" slot="VEHICLE_HARDPOINT" value="3"/>
      		<usage mode="EMBEDDED" slot="VEHICLE_CHASSIS" value="3"/>
       	<attrdef id="PRICE" value="6000"/>
       	<attrdef id="AVAILABILITY" value="4I"/>
