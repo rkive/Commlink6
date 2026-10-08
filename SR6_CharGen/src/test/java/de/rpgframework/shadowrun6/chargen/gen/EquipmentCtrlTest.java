@@ -192,6 +192,28 @@ public class EquipmentCtrlTest {
 	}
 
 	//-------------------------------------------------------------------
+	/**
+	 * A Body 0 microdrone has no electronics mod slots (Double Clutch p.121),
+	 * but anti-theft rating 2 needs none, while rating 3 needs one (p.140).
+	 */
+	@Test
+	public void testEmbeddingAntiTheftInMicrodrone() {
+		preMods.add(new ValueModification(ShadowrunReference.CREATION_POINTS, CreatePoints.NUYEN.name(), 10000));
+		charGen.runProcessors();
+		OperationResult<CarriedItem<ItemTemplate>> res = ctrl.select(Shadowrun6Core.getItem(ItemTemplate.class, "gmc_micromachine"));
+		assertTrue(res.wasSuccessful());
+		CarriedItem<ItemTemplate> drone = res.get();
+		assertEquals("Default anti-theft missing", 1, drone.getAccessory("anti_theft", "rating1").size());
+
+		ItemTemplate theft = Shadowrun6Core.getItem(ItemTemplate.class, "anti_theft");
+		Possible poss = ctrl.canBeEmbedded(drone, ItemHook.VEHICLE_ELECTRONICS, theft, "rating2");
+		assertTrue(poss.toString(), poss.get());
+		poss = ctrl.canBeEmbedded(drone, ItemHook.VEHICLE_ELECTRONICS, theft, "rating3");
+		assertFalse(poss.toString(), poss.get());
+		assertEquals(IRejectReasons.IMPOSS_CAPACITY, poss.getI18NKey().get(0).getKey());
+	}
+
+	//-------------------------------------------------------------------
 	@Test
 	public void loadSoftware() {
 		ItemTemplate item = Shadowrun6Core.getItem(ItemTemplate.class, "maersk_spider");

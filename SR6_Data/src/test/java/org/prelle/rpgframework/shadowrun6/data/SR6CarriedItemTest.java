@@ -340,6 +340,31 @@ public class SR6CarriedItemTest {
 	}
 
 	//-------------------------------------------------------------------
+	/**
+	 * Every vehicle with a Pilot rating has a rating 1 anti-theft system
+	 * (Double Clutch p.139), including Body 0 microdrones, which have no
+	 * electronics mod slots. Rating 1 and 2 need no slots, rating 3 needs one.
+	 */
+	@Test
+	public void testMicrodroneAntiTheft() {
+		for (String id : List.of("gmc_micromachine", "shiawase_kanmushi", "mct-sikorsky-bell_microskimmer_xxs")) {
+			ItemTemplate temp = Shadowrun6Core.getItem(ItemTemplate.class, id);
+			assertNotNull(temp);
+
+			CarriedItem<ItemTemplate> drone = new CarriedItem<ItemTemplate>(temp, null, CarryMode.CARRIED);
+			SR6GearTool.recalculate("", null, drone);
+			SR6GearTool.recalculate("", null, drone);
+			List<CarriedItem<ItemTemplate>> thefts = drone.getAccessory("anti_theft", "rating1");
+			assertEquals("Anti-Theft missing or duplicated on "+id,1,thefts.size());
+
+			AvailableSlot electronics = drone.getSlot(ItemHook.VEHICLE_ELECTRONICS);
+			assertNotNull("No electronics slot on "+id,electronics);
+			assertEquals(0f, electronics.getCapacity(), 0f);
+			assertEquals(0f, electronics.getFreeCapacity(), 0f);
+		}
+	}
+
+	//-------------------------------------------------------------------
 	@Test
 	public void testWithoutChoices() {
 		ItemTemplate honda = Shadowrun6Core.getItem(ItemTemplate.class, "dermal_plating");

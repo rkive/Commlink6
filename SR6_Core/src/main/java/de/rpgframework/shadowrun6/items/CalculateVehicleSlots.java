@@ -62,10 +62,12 @@ public class CalculateVehicleSlots implements CarriedItemProcessor {
 			logger.log(Level.DEBUG, "Chassis: {0}   Electro: {1}   Powertr: {2}", chassis, electro, powertr);
 
 			// Now create slots
-			ensureSlotSize(model, ItemHook.VEHICLE_CHASSIS, chassis.getModifiedValue());
-			ensureSlotSize(model, ItemHook.VEHICLE_ELECTRONICS, electro.getModifiedValue());
-			ensureSlotSize(model, ItemHook.VEHICLE_POWERTRAIN, powertr.getModifiedValue());
-			ensureSlotSize(model, ItemHook.VEHICLE_ACCESSORY, 99);
+			ensureSlotSize(model, ItemHook.VEHICLE_CHASSIS, chassis.getModifiedValue(), false);
+			// Keep an electronics slot even with no capacity (Body 0 drones): the default
+			// anti-theft system and other mods without slot cost must still fit (Double Clutch p.139f)
+			ensureSlotSize(model, ItemHook.VEHICLE_ELECTRONICS, electro.getModifiedValue(), true);
+			ensureSlotSize(model, ItemHook.VEHICLE_POWERTRAIN, powertr.getModifiedValue(), false);
+			ensureSlotSize(model, ItemHook.VEHICLE_ACCESSORY, 99, false);
 		}
 
 		calculateCargoFactor((Shadowrun6Character) charac, model);
@@ -75,15 +77,15 @@ public class CalculateVehicleSlots implements CarriedItemProcessor {
 
 	//-------------------------------------------------------------------
 	@SuppressWarnings("unchecked")
-	private AvailableSlot ensureSlotSize(CarriedItem<?> model, ItemHook hook, float size) {
+	private AvailableSlot ensureSlotSize(CarriedItem<?> model, ItemHook hook, float size, boolean keepEmpty) {
 		logger.log(Level.DEBUG, "Ensure slot {0} has capacity {1}", hook, size);
 		AvailableSlot slot = ((CarriedItem<ItemTemplate>)model).getSlot(hook);
 		if (slot==null) {
-			if (size==0) return null;
+			if (size==0 && !keepEmpty) return null;
 			slot = new AvailableSlot(hook, size);
 			model.addSlot(slot);
 		} else {
-			if (size==0) model.removeSlot(hook);
+			if (size==0 && !keepEmpty) model.removeSlot(hook);
 			else
 				slot.setCapacity(size);
 		}
@@ -136,7 +138,7 @@ public class CalculateVehicleSlots implements CarriedItemProcessor {
 		}
 		logger.log(Level.INFO, "{0}: CF is {1}   (substractSeats={2}, subtype={3})", model.getKey(), cf, substractSeats, subtype);
 
-		ensureSlotSize(model, ItemHook.VEHICLE_CF, cf);
+		ensureSlotSize(model, ItemHook.VEHICLE_CF, cf, false);
 	}
 
 	//-------------------------------------------------------------------
@@ -169,7 +171,7 @@ public class CalculateVehicleSlots implements CarriedItemProcessor {
 		if (hardpoints==0)
 			return;
 
-		AvailableSlot slot = ensureSlotSize(model, ItemHook.VEHICLE_HARDPOINT, hardpoints);
+		AvailableSlot slot = ensureSlotSize(model, ItemHook.VEHICLE_HARDPOINT, hardpoints, false);
 		if (type==ItemType.DRONE_SMALL || type==ItemType.DRONE_MINI) {
 			if (slot!=null) {
 				slot.setMaxSizePerItem(0.5);
