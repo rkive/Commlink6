@@ -2373,7 +2373,8 @@ public class Shadowrun6Tools {
 
 	//---------------------------------------------------------
 	public static String getAccessoryString(CarriedItem<ItemTemplate> item) {
-		Map<ItemTemplate, Counted> map = new LinkedHashMap<>();
+		// Count by printed name, so variants of one item stay apart
+		Map<String, Counted> map = new LinkedHashMap<>();
 		List<String> list = new ArrayList<>();
 		item.getEffectiveAccessories().forEach( ci -> {
 			ItemSubType sub = ItemSubType.ACCESSORY;
@@ -2386,10 +2387,11 @@ public class Shadowrun6Tools {
 					logger.log(Level.WARNING, "No subtype set for "+ci+" / "+getItemType(ci)+" / "+getItemSubType(ci));
 			}
 				// Sum up
-				if (map.containsKey(ci.getResolved())) {
-					map.get(ci.getResolved()).count++;
+				String key = ci.getNameWithoutRating();
+				if (map.containsKey(key)) {
+					map.get(key).count++;
 				} else {
-					map.put(ci.getResolved(), new Counted(ci));
+					map.put(key, new Counted(ci));
 				}
 		});
 		map.values().forEach(c-> list.add(c.toString()));

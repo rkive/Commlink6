@@ -697,7 +697,8 @@ public class VehicleTools {
 					return inst.getNameWithRating()+" ("+count+"x)";
 				}
 			}
-			Map<ItemTemplate, Counted> map = new LinkedHashMap<>();
+			// Count by printed name, so variants of one item (drone rack sizes) stay apart
+			Map<String, Counted> map = new LinkedHashMap<>();
 			List<String> list = new ArrayList<>();
 			for (CarriedItem<ItemTemplate> ci : item.getEffectiveAccessories()) {
 				ItemSubType sub = (ItemSubType)ci.getAsObject(SR6ItemAttribute.ITEMSUBTYPE).getModifiedValue();
@@ -729,10 +730,11 @@ public class VehicleTools {
 					if (ci.getResolved().getId().startsWith("weapon_mount"))
 						continue;
 					// Sum up
-					if (map.containsKey(ci.getResolved())) {
-						map.get(ci.getResolved()).count++;
+					String key = ci.getNameWithRating();
+					if (map.containsKey(key)) {
+						map.get(key).count++;
 					} else {
-						map.put(ci.getResolved(), new Counted(ci));
+						map.put(key, new Counted(ci));
 					}
 				}
 			};

@@ -41,6 +41,7 @@ import de.rpgframework.shadowrun.items.Legality;
 import de.rpgframework.shadowrun6.SR6Skill;
 import de.rpgframework.shadowrun6.Shadowrun6Character;
 import de.rpgframework.shadowrun6.Shadowrun6Core;
+import de.rpgframework.shadowrun6.Shadowrun6Tools;
 import de.rpgframework.shadowrun6.data.Shadowrun6DataPlugin;
 import de.rpgframework.shadowrun6.items.AvailableSlot;
 import de.rpgframework.shadowrun6.items.Damage;
@@ -54,6 +55,7 @@ import de.rpgframework.shadowrun6.items.SR6ItemEnhancement;
 import de.rpgframework.shadowrun6.items.SR6PieceOfGearVariant;
 import de.rpgframework.shadowrun6.modifications.ShadowrunReference;
 import de.rpgframework.shadowrun6.proc.CalculateMeleeAndUnarmed;
+import de.rpgframework.shadowrun6.vehicle.VehicleTools;
 
 /**
  * @author prelle
@@ -337,6 +339,37 @@ public class SR6CarriedItemTest {
 		System.out.println(vehicle.dump());
 		assertFalse("Anti-Theft missing",thefts.isEmpty());
 		assertEquals("Thefts added multiple times",1,thefts.size());
+	}
+
+	//-------------------------------------------------------------------
+	/**
+	 * Accessories that are variants of one item (drone rack sizes) are
+	 * counted apart on the sheet, identical ones together.
+	 */
+	@Test
+	public void testAccessoryStringKeepsVariantsApart() {
+		ItemTemplate temp = Shadowrun6Core.getItem(ItemTemplate.class, "chrysler-nissan_jackrabbit");
+		CarriedItem<ItemTemplate> vehicle = new CarriedItem<ItemTemplate>(temp, null, CarryMode.CARRIED);
+		SR6GearTool.recalculate("", null, vehicle);
+
+		ItemTemplate rack = Shadowrun6Core.getItem(ItemTemplate.class, "drone_rack");
+		for (String variant : List.of("micromini", "micromini", "medium")) {
+			CarriedItem<ItemTemplate> ci = new CarriedItem<ItemTemplate>(rack, rack.getVariant(variant), CarryMode.EMBEDDED);
+			SR6GearTool.recalculate("", null, ci);
+			vehicle.addAccessory(ci, ItemHook.VEHICLE_HARDPOINT);
+		}
+		String microName = vehicle.getAccessory("drone_rack", "micromini").get(0).getNameWithRating();
+		String mediumName = vehicle.getAccessory("drone_rack", "medium").get(0).getNameWithRating();
+		assertFalse("Variant names are identical: "+microName, microName.equals(mediumName));
+
+		String vehicleString = VehicleTools.getVehicleAccessoryString(vehicle);
+		assertTrue(vehicleString, vehicleString.contains(microName+" (2x)"));
+		assertTrue(vehicleString, vehicleString.contains(mediumName));
+		assertFalse(vehicleString, vehicleString.contains(microName+" (3x)"));
+
+		String plainString = Shadowrun6Tools.getAccessoryString(vehicle);
+		assertTrue(plainString, plainString.contains(" (2x)"));
+		assertFalse(plainString, plainString.contains(" (3x)"));
 	}
 
 	//-------------------------------------------------------------------
