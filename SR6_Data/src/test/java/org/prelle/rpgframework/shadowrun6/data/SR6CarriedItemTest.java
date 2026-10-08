@@ -54,6 +54,7 @@ import de.rpgframework.shadowrun6.items.SR6ItemEnhancement;
 import de.rpgframework.shadowrun6.items.SR6PieceOfGearVariant;
 import de.rpgframework.shadowrun6.modifications.ShadowrunReference;
 import de.rpgframework.shadowrun6.proc.CalculateMeleeAndUnarmed;
+import de.rpgframework.shadowrun6.vehicle.VehicleTools;
 
 /**
  * @author prelle
@@ -337,6 +338,32 @@ public class SR6CarriedItemTest {
 		System.out.println(vehicle.dump());
 		assertFalse("Anti-Theft missing",thefts.isEmpty());
 		assertEquals("Thefts added multiple times",1,thefts.size());
+	}
+
+	//-------------------------------------------------------------------
+	/**
+	 * The sheet hides the structural hardpoint mods, but Pop-Out Concealment
+	 * (hardpoint_concealment) is a mount mod and must be printed.
+	 */
+	@Test
+	public void testAccessoryStringPrintsPopOutConcealment() {
+		ItemTemplate temp = Shadowrun6Core.getItem(ItemTemplate.class, "chrysler-nissan_jackrabbit");
+		CarriedItem<ItemTemplate> vehicle = new CarriedItem<ItemTemplate>(temp, null, CarryMode.CARRIED);
+		SR6GearTool.recalculate("", null, vehicle);
+
+		ItemTemplate hardpoint = Shadowrun6Core.getItem(ItemTemplate.class, "hardpoint_standard");
+		CarriedItem<ItemTemplate> hp = new CarriedItem<ItemTemplate>(hardpoint, null, CarryMode.EMBEDDED);
+		SR6GearTool.recalculate("", null, hp);
+		vehicle.addAccessory(hp, ItemHook.VEHICLE_CHASSIS);
+
+		ItemTemplate conceal = Shadowrun6Core.getItem(ItemTemplate.class, "hardpoint_concealment");
+		CarriedItem<ItemTemplate> popOut = new CarriedItem<ItemTemplate>(conceal, conceal.getVariant("standard"), CarryMode.EMBEDDED);
+		SR6GearTool.recalculate("", null, popOut);
+		vehicle.addAccessory(popOut, ItemHook.VEHICLE_HARDPOINT);
+
+		String vehicleString = VehicleTools.getVehicleAccessoryString(vehicle);
+		assertTrue(vehicleString, vehicleString.contains(popOut.getNameWithRating()));
+		assertFalse(vehicleString, vehicleString.contains(hp.getNameWithRating()));
 	}
 
 	//-------------------------------------------------------------------

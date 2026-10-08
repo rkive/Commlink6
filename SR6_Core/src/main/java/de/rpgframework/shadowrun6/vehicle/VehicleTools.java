@@ -717,8 +717,8 @@ public class VehicleTools {
 				case SKILLSOFT:
 					break;
 				default:
-					// Don't print hardpoints
-					if (ci.getResolved().getId().startsWith("hardpoint"))
+					// Don't print hardpoints (Pop-Out Concealment is a mount mod, not a hardpoint)
+					if (ci.getResolved().getId().startsWith("hardpoint") && !ci.getResolved().getId().equals("hardpoint_concealment"))
 						continue;
 					if (ci.getResolved().getId().startsWith("modslot_"))
 						continue;
